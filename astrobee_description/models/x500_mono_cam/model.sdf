@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version='1.9'>
+  <model name='x500_mono_cam'>
+    <include merge='true'>
+      <uri>model://x500</uri>
+    </include>
+    <include merge='true'>
+      <uri>model://mono_cam</uri>
+      <pose>.12 .03 .242 0 0 0</pose>
+    </include>
+    <joint name="CameraJoint" type="fixed">
+      <parent>base_link</parent>
+      <child>mono_cam/base_link</child>
+      <pose relative_to="base_link">.12 .03 .242 0 0 0</pose>
+    </joint>
+    <!-- <plugin name="camera_plugin" filename="libgazebo_ros_camera.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>30</updateRate>
+      <cameraName>mono_cam</cameraName>
+      <imageTopicName>camera</imageTopicName>
+      <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+      <frameName>mono_cam</frameName>
+      <hackBaseline>0.07</hackBaseline>
+      <distortionK1>0.0</distortionK1>
+      <distortionK2>0.0</distortionK2>
+      <distortionK3>0.0</distortionK3>
+      <distortionT1>0.0</distortionT1>
+      <distortionT2>0.0</distortionT2>
+      <CxPrime>320.0</CxPrime>
+      <Cx>320.0</Cx>
+      <Cy>240.0</Cy>
+      <focalLength>554.256</focalLength>
+      <imageWidth>640</imageWidth>
+      <imageHeight>480</imageHeight>
+      <imageFormat>R8G8B8</imageFormat>
+      <nearClip>0.1</nearClip>
+      <farClip>100.0</farClip>
+    </plugin> -->
+  </model>
+</sdf>

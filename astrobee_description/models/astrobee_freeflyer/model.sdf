@@ -1,0 +1,134 @@
+<sdf version='1.11'>
+  <model name='astrobee'>
+    <link name='base_link'>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>9.0876999999999999</mass>
+        <inertia>
+          <ixx>0.1454</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1366</iyy>
+          <iyz>0</iyz>
+          <izz>0.15939999999999999</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_fixed_joint_lump__body_collision_collision'>
+        <pose>-0.000794 0.00022900000000000001 -0.0039069999999999999 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.29051300000000002 0.15194199999999999 0.28112900000000002</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__pmc_port_collision_collision_1'>
+        <pose>0 -0.117546 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.31919900000000001 0.083961999999999995 0.31958799999999998</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__pmc_stbd_collision_collision_2'>
+        <pose>0 0.117546 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.31919900000000001 0.083961999999999995 0.31958799999999998</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='base_link_fixed_joint_lump__body_visual_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://astrobee_description/models/astrobee_freeflyer/meshes/body.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__pmc_port_visual_visual_1'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://astrobee_description/models/astrobee_freeflyer/meshes/pmc.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__pmc_port_bumper_visual_visual_2'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://astrobee_description/models/astrobee_freeflyer/meshes/pmc_bumper.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__pmc_port_skin_visual_visual_3'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://astrobee_description/models/astrobee_freeflyer/meshes/pmc_skin_.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__pmc_stbd_visual_visual_4'>
+        <pose>0 0 0 3.1415926535897931 0.001592653589793114 -0.001592653589793114</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://astrobee_description/models/astrobee_freeflyer/meshes/pmc.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__pmc_stbd_bumper_visual_visual_5'>
+        <pose>0 0 0 3.1415926535897931 0.001592653589793114 -0.001592653589793114</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://astrobee_description/models/astrobee_freeflyer/meshes/pmc_bumper.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__pmc_stbd_skin_visual_visual_6'>
+        <pose>0 0 0 3.1415926535897931 0.001592653589793114 -0.001592653589793114</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://astrobee_description/models/astrobee_freeflyer/meshes/pmc_skin_.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <frame name='inertial_joint' attached_to='base_link'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='inertial_link' attached_to='inertial_joint'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+
+    <plugin
+      filename="gz-sim-velocity-control-system"
+      name="gz::sim::systems::VelocityControl">
+      <topic>/astrobee/cmd_vel</topic>
+      
+      <!-- <left_joint>front_left_wheel_joint</left_joint>
+      <left_joint>rear_left_wheel_joint</left_joint>
+      <right_joint>front_right_wheel_joint</right_joint>
+      <right_joint>rear_right_wheel_joint</right_joint>
+      <left_steering_joint>front_left_wheel_steering_joint</left_steering_joint>
+      <right_steering_joint>front_right_wheel_steering_joint</right_steering_joint>
+      <kingpin_width>1.0</kingpin_width>
+      <steering_limit>0.5</steering_limit>
+      <wheel_base>1.0</wheel_base>
+      <wheel_separation>1.25</wheel_separation>
+      <wheel_radius>0.3</wheel_radius>
+      <min_velocity>-1</min_velocity>
+      <max_velocity>1</max_velocity>
+      <min_acceleration>-3</min_acceleration>
+      <max_acceleration>3</max_acceleration> -->
+    </plugin>
+
+  </model>
+</sdf>

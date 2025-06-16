@@ -5,7 +5,22 @@
   gz_type_name: "gz.msgs.Clock"
   direction: GZ_TO_ROS
 - ros_topic_name: "/gazebo_world/object_poses"
-  gz_topic_name: "/world/default_custom/pose/info"
+  gz_topic_name: "/world/default/dynamic_pose/info"
   ros_type_name: "geometry_msgs/msg/PoseArray"
   gz_type_name: "gz.msgs.Pose_V"
   direction: GZ_TO_ROS
+- ros_topic_name: "astrobee/cmd_vel"
+  gz_topic_name: "astrobee/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+- ros_topic_name: "chaser/cmd_vel"
+  gz_topic_name: "chaser/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+- ros_topic_name: "target/cmd_vel"
+  gz_topic_name: "target/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ

@@ -37,6 +37,7 @@ setup(
             'visualizer = astrobee_sim.visualizer:main',
             'px4_tf = astrobee_sim.px4_transform_pub:main',
             'land_disarm = astrobee_sim.land_disarm:main',
+            'rotate_robot = astrobee_sim.rotate_robot:main',
         ],
     },
 )

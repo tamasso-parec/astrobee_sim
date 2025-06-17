@@ -76,7 +76,7 @@ def generate_launch_description():
     package='ros_gz_sim',
     executable='create',
     name='astrobee_spawn_chaser',
-    arguments=['-file', [os.path.join(astrobee_description_dir, 'models/chaser/model.sdf')], '-z', '2.0', '-name', 'chaser'],
+    arguments=['-file', [os.path.join(astrobee_description_dir, 'models/chaser/model.sdf')], '-z', '1.5', '-name', 'chaser'],
     prefix='gnome-terminal --tab --',
     output='screen'
     )
@@ -85,7 +85,7 @@ def generate_launch_description():
     package='ros_gz_sim',
     executable='create',
     name='astrobee_spawn_target',
-    arguments=['-file', [os.path.join(astrobee_description_dir, 'models/target/model.sdf')],'-x', '5.5', '-z', '2.0', '-name', 'target'],
+    arguments=['-file', [os.path.join(astrobee_description_dir, 'models/target/model.sdf')],'-x', '5.5', '-z', '1.5', '-name', 'target'],
     prefix='gnome-terminal --tab --',
     output='screen'
     )
@@ -138,6 +138,17 @@ def generate_launch_description():
         output='screen',
         arguments=['-d', PathJoinSubstitution([astrobee_sim_dir, 'resource', 'rviz_config.rviz'])],
     ))
+
+    ld.add_action(
+        Node(
+            package='astrobee_sim',
+            executable='visualizer',
+            name='visualizer',
+            output='screen',
+            prefix='gnome-terminal --tab --',
+            
+        )
+    )
 
 
     return ld

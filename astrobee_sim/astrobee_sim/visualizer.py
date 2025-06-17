@@ -40,9 +40,6 @@ from rclpy.node import Node
 from rclpy.clock import Clock
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 
-from px4_msgs.msg import VehicleAttitude
-from px4_msgs.msg import VehicleLocalPosition
-from px4_msgs.msg import TrajectorySetpoint
 from geometry_msgs.msg import PoseStamped, Point
 from nav_msgs.msg import Path
 from visualization_msgs.msg import Marker
@@ -51,6 +48,11 @@ from sensor_msgs.msg import PointCloud2, PointField
 import sensor_msgs_py.point_cloud2 as pcl2
 from scipy.spatial.transform import Rotation as R
 # import pcl
+
+
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
 
 
 def vector2PoseMsg(frame_id, position, attitude):
@@ -71,44 +73,23 @@ class AstroVisualizer(Node):
     def __init__(self):
         super().__init__("visualizer")
 
-        # Configure subscritpions
-        qos_profile = QoSProfile(
-            reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
-            history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-            depth=1,
-        )
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        self.attitude_sub = self.create_subscription(
-            VehicleAttitude,
-            "/fmu/out/vehicle_attitude",
-            self.vehicle_attitude_callback,
-            qos_profile,
-        )
-        self.local_position_sub = self.create_subscription(
-            VehicleLocalPosition,
-            "/fmu/out/vehicle_local_position",
-            self.vehicle_local_position_callback,
-            qos_profile,
-        )
-        self.setpoint_sub = self.create_subscription(
-            TrajectorySetpoint,
-            "/fmu/in/trajectory_setpoint",
-            self.trajectory_setpoint_callback,
-            qos_profile,
-        )
         
-        self.vehicle_pose_pub = self.create_publisher(
-            PoseStamped, "/px4_visualizer/vehicle_pose", 10
-        )
+        
+        # self.vehicle_pose_pub = self.create_publisher(
+        #     PoseStamped, "/px4_visualizer/vehicle_pose", 10
+        # )
         self.vehicle_vel_pub = self.create_publisher(
-            Marker, "/px4_visualizer/vehicle_velocity", 10
+            Marker, "/visualizer/vehicle_velocity", 10
         )
         self.vehicle_path_pub = self.create_publisher(
-            Path, "/px4_visualizer/vehicle_path", 10
+            Path, "/visualizer/vehicle_path", 10
         )
-        self.setpoint_path_pub = self.create_publisher(
-            Path, "/px4_visualizer/setpoint_path", 10
-        )
+        # self.setpoint_path_pub = self.create_publisher(
+        #     Path, "/px4_visualizer/setpoint_path", 10
+        # )
 
 
         self.vehicle_attitude = np.array([1.0, 0.0, 0.0, 0.0])
@@ -128,7 +109,64 @@ class AstroVisualizer(Node):
         self.declare_parameter("path_clearing_timeout", -1.0)
 
         timer_period = 0.05  # seconds
-        self.timer = self.create_timer(timer_period, self.cmdloop_callback)
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+
+    def timer_callback(self):
+
+        try:
+            t = self.tf_buffer.lookup_transform(
+                'world',
+                'chaser/base_link',
+                rclpy.time.Time())
+        except TransformException as ex:
+            self.get_logger().info(
+                f'Could not transform: {ex}')
+            return
+        
+        
+        pose_msg = PoseStamped()
+        pose_msg.header.frame_id = t.header.frame_id
+        pose_msg.header.stamp = t.header.stamp
+        pose_msg.pose.position.x = t.transform.translation.x
+        pose_msg.pose.position.y = t.transform.translation.y
+        pose_msg.pose.position.z = t.transform.translation.z
+        pose_msg.pose.orientation = t.transform.rotation
+        
+        self.append_vehicle_path(pose_msg)
+        self.vehicle_path_msg.header = pose_msg.header
+
+        self.vehicle_path_pub.publish(self.vehicle_path_msg)
+
+        # try:
+        #     t_target = self.tf_buffer.lookup_transform(
+        #         'world',
+        #         'target/base_link',
+        #         rclpy.time.Time())
+        # except TransformException as ex:
+        #     self.get_logger().info(
+        #         f'Could not transform: {ex}')
+        #     return
+        
+        # target_position = t_target.transform.translation
+
+        # # Obtain the rotation from the quaternion
+        # q = [
+        #     t.transform.rotation.x,
+        #     t.transform.rotation.y,
+        #     t.transform.rotation.z,
+        #     t.transform.rotation.w,
+        # ]
+        # rot = R.from_quat(q)
+        # x_axis = rot.apply([2, 0, 0])
+
+        marker_msg = self.create_arrow_marker(
+            0, [0.0,0.0,0.0], [1.0,0.0,0.0])
+        
+        self.vehicle_vel_pub.publish(marker_msg)
+        
+        
+
+        
 
     def vehicle_attitude_callback(self, msg):
         # TODO: handle NED->ENU transformation
@@ -166,7 +204,7 @@ class AstroVisualizer(Node):
     def create_arrow_marker(self, id, tail, vector):
         msg = Marker()
         msg.action = Marker.ADD
-        msg.header.frame_id = "map"
+        msg.header.frame_id = "target/base_link"
         # msg.header.stamp = Clock().now().nanoseconds / 1000
         msg.ns = "arrow"
         msg.id = id
@@ -178,7 +216,7 @@ class AstroVisualizer(Node):
         msg.color.g = 0.5
         msg.color.b = 0.0
         msg.color.a = 1.0
-        dt = 0.3
+        dt = 1.0
         tail_point = Point()
         tail_point.x = tail[0]
         tail_point.y = tail[1]

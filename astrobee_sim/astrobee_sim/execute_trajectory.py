@@ -20,7 +20,7 @@ from ros_gz_interfaces.srv import SetEntityPose
 from geometry_msgs.msg import Twist, Vector3, PoseArray, Pose
 from geometry_msgs.msg import TransformStamped
 
-from tf_transformations import quaternion_matrix
+from tf_transformations import quaternion_matrix, quaternion_about_axis
 import re
 import yaml
 import numpy as np
@@ -35,6 +35,11 @@ from gz.msgs10.boolean_pb2 import Boolean as gz_boolean
 from gz.msgs10 import vector3d_pb2 
 from gz.msgs10 import quaternion_pb2
 from gz.msgs10.stringmsg_pb2 import StringMsg
+
+
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
 
 
 
@@ -52,6 +57,9 @@ class TrajectoryFollower(Node):
         self.gz_node = gz_Node()
         
         self.tf_broadcaster = TransformBroadcaster(self)
+
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
         self.trajectory = []
         self.times = []
@@ -104,7 +112,7 @@ class TrajectoryFollower(Node):
         self.body_frame = f'/{self.robot_name}/base_link'
         self.world_frame = "world"
 
-        self.robot_number = 0
+        self.robot_id = 0
 
         
         self.rotation_subscirber = self.create_subscription(
@@ -195,7 +203,7 @@ class TrajectoryFollower(Node):
 
         # Set the entity name and type
         self.gz_request.name = 'chaser'
-        self.gz_request.id = 9
+        self.gz_request.id = self.robot_id
 
         # Call the service to set the pose
         self.send_gz_request()
@@ -269,6 +277,30 @@ class TrajectoryFollower(Node):
                 position.y = pp[1] + self.trajectory_offset[1]
                 position.z = pp[2] + self.trajectory_offset[2]
 
+                try:
+                    t_target = self.tf_buffer.lookup_transform(
+                        'world',
+                        'target/base_link',
+                        rclpy.time.Time())
+                except TransformException as ex:
+                    self.get_logger().info(
+                        f'Could not transform: {ex}')
+                    return
+        
+                target_position = t_target.transform.translation
+
+                angle = np.arctan2(
+                    position.z - target_position.z,
+                    position.x - target_position.x)
+                axis = np.array([0, -1,0])  # Assuming rotation around z-axis
+
+                rotation = quaternion_about_axis(angle, axis)
+                orientation.x = rotation[1]
+                orientation.y = rotation[2]
+                orientation.z = rotation[3]
+                orientation.w = rotation[0]
+
+
                 self.get_logger().info(f"New position: {position.x}, {position.y}, {position.z}")
                 # Send the request to set the pose
                 # self.sendRequest(position, orientation)
@@ -316,6 +348,7 @@ class TrajectoryFollower(Node):
     
         for pose in msg.pose: 
             if pose.name == self.robot_name:
+                self.robot_id = pose.id
                 position = pose.position
                 orientation = pose.orientation
 

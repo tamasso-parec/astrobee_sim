@@ -31,6 +31,7 @@ setup(
         'console_scripts': [
             'rotate_robot = astrobee_sim.rotate_robot:main',
             'execute_trajectory = astrobee_sim.execute_trajectory:main',
+            'visualizer = astrobee_sim.visualizer:main',
         ],
     },
 )

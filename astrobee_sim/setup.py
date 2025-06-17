@@ -29,15 +29,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'processes = astrobee_sim.processes:main',
-            'arm_takeoff = astrobee_sim.arm_takeoff:main',
-            'offboard_control = astrobee_sim.offboard_control:main',
-            'drone_path_follower = astrobee_sim.drone_path_follower:main',
-            'offboard_takeoff = astrobee_sim.offboard_takeoff:main',
-            'visualizer = astrobee_sim.visualizer:main',
-            'px4_tf = astrobee_sim.px4_transform_pub:main',
-            'land_disarm = astrobee_sim.land_disarm:main',
             'rotate_robot = astrobee_sim.rotate_robot:main',
+            'execute_trajectory = astrobee_sim.execute_trajectory:main',
         ],
     },
 )

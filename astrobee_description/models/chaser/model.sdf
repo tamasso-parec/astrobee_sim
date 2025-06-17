@@ -1,6 +1,6 @@
 <sdf version='1.11'>
   <model name='chaser'>
-    <link name='base_link'>
+    <link name='chaser/base_link'>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>9.0876999999999999</mass>
@@ -13,7 +13,7 @@
           <izz>0.15939999999999999</izz>
         </inertia>
       </inertial>
-      <collision name='base_link_fixed_joint_lump__body_collision_collision'>
+      <collision name='chaser/base_link_fixed_joint_lump__body_collision_collision'>
         <pose>-0.000794 0.00022900000000000001 -0.0039069999999999999 0 0 0</pose>
         <geometry>
           <box>
@@ -21,7 +21,7 @@
           </box>
         </geometry>
       </collision>
-      <collision name='base_link_fixed_joint_lump__pmc_port_collision_collision_1'>
+      <collision name='chaser/base_link_fixed_joint_lump__pmc_port_collision_collision_1'>
         <pose>0 -0.117546 0 0 0 0</pose>
         <geometry>
           <box>
@@ -29,7 +29,7 @@
           </box>
         </geometry>
       </collision>
-      <collision name='base_link_fixed_joint_lump__pmc_stbd_collision_collision_2'>
+      <collision name='chaser/base_link_fixed_joint_lump__pmc_stbd_collision_collision_2'>
         <pose>0 0.117546 0 0 0 0</pose>
         <geometry>
           <box>
@@ -37,7 +37,7 @@
           </box>
         </geometry>
       </collision>
-      <visual name='base_link_fixed_joint_lump__body_visual_visual'>
+      <visual name='chaser/base_link_fixed_joint_lump__body_visual_visual'>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
@@ -46,7 +46,7 @@
           </mesh>
         </geometry>
       </visual>
-      <visual name='base_link_fixed_joint_lump__pmc_port_visual_visual_1'>
+      <visual name='chaser/base_link_fixed_joint_lump__pmc_port_visual_visual_1'>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
@@ -55,7 +55,7 @@
           </mesh>
         </geometry>
       </visual>
-      <visual name='base_link_fixed_joint_lump__pmc_port_bumper_visual_visual_2'>
+      <visual name='chaser/base_link_fixed_joint_lump__pmc_port_bumper_visual_visual_2'>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
@@ -64,7 +64,7 @@
           </mesh>
         </geometry>
       </visual>
-      <visual name='base_link_fixed_joint_lump__pmc_port_skin_visual_visual_3'>
+      <visual name='chaser/base_link_fixed_joint_lump__pmc_port_skin_visual_visual_3'>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
@@ -73,7 +73,7 @@
           </mesh>
         </geometry>
       </visual>
-      <visual name='base_link_fixed_joint_lump__pmc_stbd_visual_visual_4'>
+      <visual name='chaser/base_link_fixed_joint_lump__pmc_stbd_visual_visual_4'>
         <pose>0 0 0 3.1415926535897931 0.001592653589793114 -0.001592653589793114</pose>
         <geometry>
           <mesh>
@@ -82,7 +82,7 @@
           </mesh>
         </geometry>
       </visual>
-      <visual name='base_link_fixed_joint_lump__pmc_stbd_bumper_visual_visual_5'>
+      <visual name='chaser/base_link_fixed_joint_lump__pmc_stbd_bumper_visual_visual_5'>
         <pose>0 0 0 3.1415926535897931 0.001592653589793114 -0.001592653589793114</pose>
         <geometry>
           <mesh>
@@ -91,7 +91,7 @@
           </mesh>
         </geometry>
       </visual>
-      <visual name='base_link_fixed_joint_lump__pmc_stbd_skin_visual_visual_6'>
+      <visual name='chaser/base_link_fixed_joint_lump__pmc_stbd_skin_visual_visual_6'>
         <pose>0 0 0 3.1415926535897931 0.001592653589793114 -0.001592653589793114</pose>
         <geometry>
           <mesh>
@@ -101,7 +101,7 @@
         </geometry>
       </visual>
     </link>
-    <frame name='inertial_joint' attached_to='base_link'>
+    <frame name='inertial_joint' attached_to='chaser/base_link'>
       <pose>0 0 0 0 0 0</pose>
     </frame>
     <frame name='inertial_link' attached_to='inertial_joint'>

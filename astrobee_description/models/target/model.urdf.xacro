@@ -17,7 +17,7 @@
 <!-- implied. See the License for the specific language governing            -->
 <!-- permissions and limitations under the License.                          -->
 
-<robot name="astrobee" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="target" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- OPTIONS -->
   <!-- <xacro:property name="world" value="$(arg world)"/>
@@ -31,7 +31,7 @@
   </xacro:if> -->
 
   <!-- BASE GEOMETRY -->
- <link name="base_link">
+ <link name="target/base_link">
     <self_collide>false</self_collide>
     <!-- body -->
     <visual name="body_visual">
@@ -98,7 +98,7 @@
     </collision>
   </link>
   <!-- This is a workaround for KDL -->
-  <link name="inertial_link">
+  <link name="target/inertial_link">
     <self_collide>false</self_collide>
     <inertial>
       <mass value="9.0877"/>
@@ -108,8 +108,8 @@
   </link>
   <joint name="inertial_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
-    <parent link="base_link" />
-    <child link="inertial_link" />
+    <parent link="target/base_link" />
+    <child link="target/inertial_link" />
   </joint>
 
   

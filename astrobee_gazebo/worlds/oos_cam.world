@@ -47,7 +47,7 @@
     <model name='iss'>
       <link name='body'>
         <visual name='body_fixed_joint_lump__iss_us_lab_visual_visual_6'>
-          <pose>2.8 0.00 4.83489 0 -0 0</pose>
+          <pose>4.8 0.00 4.83489 0 -0 0</pose>
           <geometry>
             <mesh>
               <scale>1 1 1</scale>

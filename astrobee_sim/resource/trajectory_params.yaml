@@ -1,0 +1,5 @@
+execute_trajectory:
+  ros__parameters:
+    robot_name: 'chaser'
+    trajectory_file: 'src/astrobee_sim/resource/chaserOCP.yaml'
+    trajectory_offset: [0.0, 0.0, 2.0]

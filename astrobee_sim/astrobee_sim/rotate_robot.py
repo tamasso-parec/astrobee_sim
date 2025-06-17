@@ -44,11 +44,18 @@ class RobotRotator(Node):
         self.body_frame = "base_link"
         self.world_frame = "world"
 
-        self.robot_number = 0
+        self.declare_parameter('robot_number', 1)
+        self.declare_parameter('body_frame', 'base_link')
+        self.robot_number = 1
 
         match = re.search(r'_(\d+)$', self.robot_name)
         if match:
             self.robot_number = int(match.group(1))
+        else: 
+            self.robot_name = self.get_parameter('robot_name').get_parameter_value().string_value
+
+
+        self.body_frame = self.get_parameter('body_frame').get_parameter_value().string_value
         
 
 

@@ -30,11 +30,11 @@ from gz.transport13 import Node as gz_Node
 
 import gz.msgs10 as gz_msgs
 from gz.msgs10.pose_pb2 import Pose as gz_pose
+from gz.msgs10.pose_v_pb2 import Pose_V as gz_pose_V
 from gz.msgs10.boolean_pb2 import Boolean as gz_boolean
 from gz.msgs10 import vector3d_pb2 
 from gz.msgs10 import quaternion_pb2
 from gz.msgs10.stringmsg_pb2 import StringMsg
-
 
 
 
@@ -89,6 +89,8 @@ class TrajectoryFollower(Node):
         self.gz_request = gz_pose()
         self.timeout = 10
 
+
+
         # while not self.set_pose_client.wait_for_service(timeout_sec=1.0):
         #     self.get_logger().info('service not available, waiting again...')
 
@@ -104,13 +106,7 @@ class TrajectoryFollower(Node):
 
         self.robot_number = 0
 
-        self.ground_truth_pose_sub = self.create_subscription(
-            PoseArray,
-            '/gazebo_world/object_poses', 
-            self.ground_truth_pose_callback, 
-            1)
         
-
         self.rotation_subscirber = self.create_subscription(
             Twist,
             '/target/cmd_vel',
@@ -178,7 +174,7 @@ class TrajectoryFollower(Node):
         if traj.ndim == 1:
             traj = traj.reshape(-1, 3)
 
-        self.trajectory = make_interp_spline(times, traj, k=3)
+        self.trajectory = make_interp_spline(times, traj, k=3, bc_type='clamped')
 
         
     def rotation_callback(self, msg):
@@ -203,6 +199,31 @@ class TrajectoryFollower(Node):
 
         # Call the service to set the pose
         self.send_gz_request()
+
+        t = TransformStamped()
+
+        # Read message content and assign it to
+        # corresponding tf variables
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = self.world_frame
+        t.child_frame_id = self.body_frame
+
+        # Turtle only exists in 2D, thus we get x and y translation
+        # coordinates from the message and set the z coordinate to 0
+        t.transform.translation.x = position.x
+        t.transform.translation.y = position.y
+        t.transform.translation.z = position.z
+
+        # For the same reason, turtle can only rotate around one axis
+        # and this why we set rotation in x and y to 0 and obtain
+        # rotation in z axis from the message
+        t.transform.rotation.x = orientation.x
+        t.transform.rotation.y = orientation.y
+        t.transform.rotation.z = orientation.z
+        t.transform.rotation.w = orientation.w
+
+        # Send the transformation
+        self.tf_broadcaster.sendTransform(t)
 
 
     def sendRequest(self, position, orientation):
@@ -255,40 +276,74 @@ class TrajectoryFollower(Node):
 
 
     def ground_truth_pose_callback(self, msg):
+        pass
         # This function is called when a new PoseArray message is received
         # You can process the pose data here
         # self.get_logger().info(f"Ground truth poses received: {len(msg.poses)} poses")
 
-        astrobee_pose = msg.poses[self.robot_number]
+        # astrobee_pose = msg.poses[self.robot_number]
 
-        # Extract position and orientation from the pose
-        position = astrobee_pose.position
-        orientation = astrobee_pose.orientation
+        # # Extract position and orientation from the pose
+        # position = astrobee_pose.position
+        # orientation = astrobee_pose.orientation
 
-        t = TransformStamped()
+        # t = TransformStamped()
 
-        # Read message content and assign it to
-        # corresponding tf variables
-        t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = self.world_frame
-        t.child_frame_id = self.body_frame
+        # # Read message content and assign it to
+        # # corresponding tf variables
+        # t.header.stamp = self.get_clock().now().to_msg()
+        # t.header.frame_id = self.world_frame
+        # t.child_frame_id = self.body_frame
 
-        # Turtle only exists in 2D, thus we get x and y translation
-        # coordinates from the message and set the z coordinate to 0
-        t.transform.translation.x = position.x
-        t.transform.translation.y = position.y
-        t.transform.translation.z = position.z
+        # # Turtle only exists in 2D, thus we get x and y translation
+        # # coordinates from the message and set the z coordinate to 0
+        # t.transform.translation.x = position.x
+        # t.transform.translation.y = position.y
+        # t.transform.translation.z = position.z
 
-        # For the same reason, turtle can only rotate around one axis
-        # and this why we set rotation in x and y to 0 and obtain
-        # rotation in z axis from the message
-        t.transform.rotation.x = orientation.x
-        t.transform.rotation.y = orientation.y
-        t.transform.rotation.z = orientation.z
-        t.transform.rotation.w = orientation.w
+        # # For the same reason, turtle can only rotate around one axis
+        # # and this why we set rotation in x and y to 0 and obtain
+        # # rotation in z axis from the message
+        # t.transform.rotation.x = orientation.x
+        # t.transform.rotation.y = orientation.y
+        # t.transform.rotation.z = orientation.z
+        # t.transform.rotation.w = orientation.w
 
-        # Send the transformation
-        self.tf_broadcaster.sendTransform(t)
+        # # Send the transformation
+        # self.tf_broadcaster.sendTransform(t)
+
+    def gz_ground_truth_callback(self, msg): 
+    
+        for pose in msg.pose: 
+            if pose.name == self.robot_name:
+                position = pose.position
+                orientation = pose.orientation
+
+                t = TransformStamped()
+
+                # Read message content and assign it to
+                # corresponding tf variables
+                t.header.stamp = self.get_clock().now().to_msg()
+                t.header.frame_id = self.world_frame
+                t.child_frame_id = self.body_frame
+
+                # Turtle only exists in 2D, thus we get x and y translation
+                # coordinates from the message and set the z coordinate to 0
+                t.transform.translation.x = position.x
+                t.transform.translation.y = position.y
+                t.transform.translation.z = position.z
+
+                # For the same reason, turtle can only rotate around one axis
+                # and this why we set rotation in x and y to 0 and obtain
+                # rotation in z axis from the message
+                t.transform.rotation.x = orientation.x
+                t.transform.rotation.y = orientation.y
+                t.transform.rotation.z = orientation.z
+                t.transform.rotation.w = orientation.w
+
+                # Send the transformation
+                self.tf_broadcaster.sendTransform(t)
+
 
         
         

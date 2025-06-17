@@ -21,6 +21,16 @@ from tf_transformations import quaternion_matrix
 import re
 
 
+from gz.transport13 import Node as gz_Node
+
+import gz.msgs10 as gz_msgs
+from gz.msgs10.pose_pb2 import Pose as gz_pose
+from gz.msgs10.pose_v_pb2 import Pose_V as gz_pose_V
+from gz.msgs10.boolean_pb2 import Boolean as gz_boolean
+from gz.msgs10 import vector3d_pb2 
+from gz.msgs10 import quaternion_pb2
+from gz.msgs10.stringmsg_pb2 import StringMsg
+
 
 class RobotRotator(Node):
 
@@ -36,8 +46,11 @@ class RobotRotator(Node):
         
         self.tf_broadcaster = TransformBroadcaster(self)
 
+        self.gz_node = gz_Node()
+        self.gz_node.subscribe(gz_pose_V, 'world/default/dynamic_pose/info', self.gz_ground_truth_callback)
 
-        self.declare_parameter('robot_name', 'astrobee')
+
+        self.declare_parameter('robot_name', 'target')
         self.robot_name = self.get_parameter('robot_name').get_parameter_value().string_value
         self.vel_topic_name = f'/{self.robot_name}/cmd_vel'
         # self.vel_topic_name = '/cmd_vel'
@@ -86,62 +99,116 @@ class RobotRotator(Node):
     
 
     def ground_truth_pose_callback(self, msg):
-        # This function is called when a new PoseArray message is received
-        # You can process the pose data here
-        # self.get_logger().info(f"Ground truth poses received: {len(msg.poses)} poses")
+        pass
+        # # This function is called when a new PoseArray message is received
+        # # You can process the pose data here
+        # # self.get_logger().info(f"Ground truth poses received: {len(msg.poses)} poses")
 
-        astrobee_pose = msg.poses[self.robot_number]
+        # astrobee_pose = msg.poses[self.robot_number]
 
-        # Extract position and orientation from the pose
-        position = astrobee_pose.position
-        orientation = astrobee_pose.orientation
+        # # Extract position and orientation from the pose
+        # position = astrobee_pose.position
+        # orientation = astrobee_pose.orientation
 
-        t = TransformStamped()
+        # t = TransformStamped()
 
-        # Read message content and assign it to
-        # corresponding tf variables
-        t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = self.world_frame
-        t.child_frame_id = self.body_frame
+        # # Read message content and assign it to
+        # # corresponding tf variables
+        # t.header.stamp = self.get_clock().now().to_msg()
+        # t.header.frame_id = self.world_frame
+        # t.child_frame_id = self.body_frame
 
-        # Turtle only exists in 2D, thus we get x and y translation
-        # coordinates from the message and set the z coordinate to 0
-        t.transform.translation.x = position.x
-        t.transform.translation.y = position.y
-        t.transform.translation.z = position.z
+        # # Turtle only exists in 2D, thus we get x and y translation
+        # # coordinates from the message and set the z coordinate to 0
+        # t.transform.translation.x = position.x
+        # t.transform.translation.y = position.y
+        # t.transform.translation.z = position.z
 
-        # For the same reason, turtle can only rotate around one axis
-        # and this why we set rotation in x and y to 0 and obtain
-        # rotation in z axis from the message
-        t.transform.rotation.x = orientation.x
-        t.transform.rotation.y = orientation.y
-        t.transform.rotation.z = orientation.z
-        t.transform.rotation.w = orientation.w
+        # # For the same reason, turtle can only rotate around one axis
+        # # and this why we set rotation in x and y to 0 and obtain
+        # # rotation in z axis from the message
+        # t.transform.rotation.x = orientation.x
+        # t.transform.rotation.y = orientation.y
+        # t.transform.rotation.z = orientation.z
+        # t.transform.rotation.w = orientation.w
 
-        # Send the transformation
-        self.tf_broadcaster.sendTransform(t)
+        # # Send the transformation
+        # self.tf_broadcaster.sendTransform(t)
 
-        # if (not self.is_spinning):
+        # # if (not self.is_spinning):
                 
-        rotMat = quaternion_matrix([orientation.x, orientation.y, orientation.z, orientation.w])
-        # rotated_linear_velocity = rotMat[:3, :3].T @ self.linear_velocity  # Rotate linear velocity
-        rotated_linear_velocity = rotMat[:3, :3].T@ self.linear_velocity  # Rotate linear velocity
-        rotated_angular_velocity = rotMat[:3, :3].T @ self.angular_velocity  # Rotate around z-axis
+        # rotMat = quaternion_matrix([orientation.x, orientation.y, orientation.z, orientation.w])
+        # # rotated_linear_velocity = rotMat[:3, :3].T @ self.linear_velocity  # Rotate linear velocity
+        # rotated_linear_velocity = rotMat[:3, :3].T@ self.linear_velocity  # Rotate linear velocity
+        # rotated_angular_velocity = rotMat[:3, :3].T @ self.angular_velocity  # Rotate around z-axis
 
-        self.get_logger().info(f"Sending spin command with linear velocity: {rotated_linear_velocity} and angular velocity: {rotated_angular_velocity}")
+        # self.get_logger().info(f"Sending spin command with linear velocity: {rotated_linear_velocity} and angular velocity: {rotated_angular_velocity}")
 
-        # Create a Twist message to rotate the robot
-        twist = Twist()
-        twist.linear.x =rotated_linear_velocity[0]
-        twist.linear.y =rotated_linear_velocity[1]
-        twist.linear.z =rotated_linear_velocity[2]
-        twist.angular.x = rotated_angular_velocity[0]
-        twist.angular.y = rotated_angular_velocity[1]
-        twist.angular.z = rotated_angular_velocity[2]
+        # # Create a Twist message to rotate the robot
+        # twist = Twist()
+        # twist.linear.x =rotated_linear_velocity[0]
+        # twist.linear.y =rotated_linear_velocity[1]
+        # twist.linear.z =rotated_linear_velocity[2]
+        # twist.angular.x = rotated_angular_velocity[0]
+        # twist.angular.y = rotated_angular_velocity[1]
+        # twist.angular.z = rotated_angular_velocity[2]
 
-        # Publish the Twist message to rotate the robot
-        self.rotation_publisher.publish(twist)
-        self.is_spinning = True
+        # # Publish the Twist message to rotate the robot
+        # self.rotation_publisher.publish(twist)
+        # self.is_spinning = True
+
+    
+    def gz_ground_truth_callback(self, msg): 
+    
+        for pose in msg.pose: 
+            if pose.name == self.robot_name:
+                position = pose.position
+                orientation = pose.orientation
+
+                t = TransformStamped()
+
+                # Read message content and assign it to
+                # corresponding tf variables
+                t.header.stamp = self.get_clock().now().to_msg()
+                t.header.frame_id = self.world_frame
+                t.child_frame_id = self.body_frame
+
+                # Turtle only exists in 2D, thus we get x and y translation
+                # coordinates from the message and set the z coordinate to 0
+                t.transform.translation.x = position.x
+                t.transform.translation.y = position.y
+                t.transform.translation.z = position.z
+
+                # For the same reason, turtle can only rotate around one axis
+                # and this why we set rotation in x and y to 0 and obtain
+                # rotation in z axis from the message
+                t.transform.rotation.x = orientation.x
+                t.transform.rotation.y = orientation.y
+                t.transform.rotation.z = orientation.z
+                t.transform.rotation.w = orientation.w
+
+                # Send the transformation
+                self.tf_broadcaster.sendTransform(t)
+
+                rotMat = quaternion_matrix([orientation.x, orientation.y, orientation.z, orientation.w])
+                # rotated_linear_velocity = rotMat[:3, :3].T @ self.linear_velocity  # Rotate linear velocity
+                rotated_linear_velocity = rotMat[:3, :3].T@ self.linear_velocity  # Rotate linear velocity
+                rotated_angular_velocity = rotMat[:3, :3].T @ self.angular_velocity  # Rotate around z-axis
+
+                self.get_logger().info(f"Sending spin command with linear velocity: {rotated_linear_velocity} and angular velocity: {rotated_angular_velocity}")
+
+                # Create a Twist message to rotate the robot
+                twist = Twist()
+                twist.linear.x =rotated_linear_velocity[0]
+                twist.linear.y =rotated_linear_velocity[1]
+                twist.linear.z =rotated_linear_velocity[2]
+                twist.angular.x = rotated_angular_velocity[0]
+                twist.angular.y = rotated_angular_velocity[1]
+                twist.angular.z = rotated_angular_velocity[2]
+
+                # Publish the Twist message to rotate the robot
+                self.rotation_publisher.publish(twist)
+                self.is_spinning = True
         
 
 

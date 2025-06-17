@@ -90,21 +90,6 @@ def generate_launch_description():
     output='screen'
     )
 
-    rotate_target = Node(
-            package='astrobee_sim',
-            executable='rotate_robot',
-            name='rotate_robot',
-            output='screen',
-            prefix='gnome-terminal --tab --',
-            parameters=[{
-                'angular_velocity': [0.001, 0.0698, 0.001],  # Angular velocity in radians per second
-                'robot_name': 'target',
-                'body_frame': 'target/base_link',
-                'robot_number': 1,
-    
-            }],
-        )
-    ld.add_action(rotate_target)
 
     ld.add_action(gz_spawn_chaser)
 
@@ -154,34 +139,5 @@ def generate_launch_description():
         arguments=['-d', PathJoinSubstitution([astrobee_sim_dir, 'resource', 'rviz_config.rviz'])],
     ))
 
-    # chaser_urdf_rviz = IncludeLaunchDescription(
-    #             PathJoinSubstitution([get_package_share_directory('urdf_launch'), 'launch', 'display.launch.py']),
-    #             launch_arguments={
-    #                 'urdf_package': 'astrobee_description',
-    #                 'urdf_package_path': PathJoinSubstitution(['models','chaser', 'model.urdf.xacro'])
-    #             }.items()
-    #         )
-    # target_urdf_rviz = IncludeLaunchDescription(
-    #             PathJoinSubstitution([get_package_share_directory('urdf_launch'), 'launch', 'display.launch.py']),
-    #             launch_arguments={
-    #                 'urdf_package': 'astrobee_description',
-    #                 'urdf_package_path': PathJoinSubstitution(['models','target', 'model.urdf.xacro'])
-    #             }.items()
-    #         )
-    
-    # ld.add_action(chaser_urdf_rviz)
-
-
-    execute_trajectory_node = Node(
-        package='astrobee_sim',
-        executable='execute_trajectory',
-        name='execute_trajectory',
-        output='screen',
-        parameters=[os.path.join(astrobee_sim_dir, 'resource', 'trajectory_params.yaml'), 
-                    {'robot_name': 'chaser', 'body_frame': 'chaser/base_link', 'robot_number': 0}],
-        
-    )
-
-    ld.add_action(execute_trajectory_node)
 
     return ld
